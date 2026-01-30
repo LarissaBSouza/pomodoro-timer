@@ -96,4 +96,129 @@ class PomodoroTimer {
         this.updateDisplay();
     }
 
+    start() {
+        this.isRunning = true;
+        this.startBtn.style.display = 'none';
+        this.pauseBtn.style.display = 'inline-block';
+
+        this.timer = setInterval(() => {
+            this.timeLeft--;
+
+            if (this.currentMode === 'pomodoro') {
+                this.totalFocusTime++;
+            }
+
+            this.updateDisplay();
+
+            if (this.timeLeft <= 0) {
+                this.complete(); // Chama o complete separado
+            }
+        }, 1000);
+    }
+
+    pause() {
+        this.isRunning = false;
+        this.startBtn.style.display = 'inline-block';
+        this.pauseBtn.style.display = 'none';
+        clearInterval(this.timer);
+    }
+
+    reset() {
+        this.pause();
+        this.timeLeft = this.modes[this.currentMode];
+        this.totalTime = this.modes[this.currentMode];
+        this.updateDisplay();
+    }
+
+    complete() {
+        this.pause();
+
+        if (this.currentMode === 'pomodoro') {
+            this.completedPomodoros++;
+            this.updateStats();
+
+            const nextMode = this.completedPomodoros % 4 === 0 ? 'long' : 'short';
+            this.showNotification(
+                'Sessão Completa',
+                `Excelente trabalho! Hora de fazer uma ${nextMode === 'long' ? 'pausa longa' : 'pausa curta'}.`
+            );
+            this.playSound();
+        } else {
+            this.showNotification(
+                'Pausa Finalizada',
+                'Hora de voltar ao trabalho focado!'
+            );
+            this.playSound();
+        }
+
+        this.reset();
+    }
+
+    updateDisplay() {
+        // 1. Atualiza o relógio (estava faltando)
+        const minutes = Math.floor(this.timeLeft / 60);
+        const seconds = this.timeLeft % 60;
+        this.timeDisplay.textContent = 
+            `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        
+        // Atualiza a barra de progresso
+        const progress = ((this.totalTime - this.timeLeft) / this.totalTime) * 100;
+        this.progressFill.style.width = `${progress}%`;
+        
+        // Atualiza título da aba
+        document.title = `${this.timeDisplay.textContent} - Pomodoro Timer`;
+    }
+
+    updateStats() { // Método separado para organizar melhor
+        this.completedPomodorosEl.textContent = this.completedPomodoros;
+        const hours = Math.floor(this.totalFocusTime / 3600);
+        const minutes = Math.floor((this.totalFocusTime % 3600) / 60);
+        this.totalFocusTimeEl.textContent = `${hours}h ${minutes}m`;
+    }
+
+    showNotification(title, message) {
+    
+        this.notificationTitle.textContent = title;
+        this.notificationMessage.textContent = message;
+        this.notification.classList.add('show');
+
+        if (Notification.permission === 'granted') {
+            
+            new Notification(title, { body: message });
+        
+        }
+
+        setTimeout(() => {
+            this.notification.classList.remove('show');
+        }, 5000);
+
+    }
+
+    playSound() {
+        
+        const audioContext = new (window.AudioContext || window.webkitAudioContext) ();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    }
+
+    requestNotificationPermission() {
+        // Correção do erro de digitação: Notification
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    }    
 }
+
+const pomodoroTimer = new PomodoroTimer();
