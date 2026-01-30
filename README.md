@@ -3,7 +3,7 @@
 Um cronômetro de produtividade moderno, elegante e personalizável baseado na técnica Pomodoro. Desenvolvido com **Vanilla JavaScript** orientado a objetos, focando em código limpo e arquitetura modular.
 
 ![Status do Projeto](https://img.shields.io/badge/status-concluído-brightgreen)
-![Licença](https://img.shields.io/badge/license-MIT-blue)
+
 
 ## Funcionalidades
 
