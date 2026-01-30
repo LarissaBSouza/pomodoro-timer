@@ -4,6 +4,7 @@ Um cronômetro de produtividade moderno, elegante e personalizável baseado na t
 
 ![Status do Projeto](https://img.shields.io/badge/status-concluído-brightgreen)
 
+[![Deploy](https://img.shields.io/badge/Demo-Ver%20Online-blue?style=for-the-badge&logo=github)](https://larissabsouza.github.io/pomodoro-timer/)
 
 ## Funcionalidades
 
